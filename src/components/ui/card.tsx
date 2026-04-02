@@ -15,7 +15,7 @@ const CardRoot = ({ className, children, ...props }: CardProps) => (
   </div>
 )
 
-interface CardHeaderProps extends React.ComponentProps<"div"> {
+type CardHeaderProps = Omit<React.ComponentProps<"div">, "title"> & {
   title?: React.ReactNode
   description?: React.ReactNode
 }
