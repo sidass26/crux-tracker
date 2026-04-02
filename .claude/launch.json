@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "crux-tracker",
+      "runtimeExecutable": "/opt/homebrew/bin/node",
+      "runtimeArgs": ["/Users/siddhesh/vibecoding/crux-tracker/node_modules/.bin/next", "dev"],
+      "port": 3000
+    }
+  ]
+}
