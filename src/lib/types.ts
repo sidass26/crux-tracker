@@ -73,7 +73,7 @@ export interface ChartDataPoint {
   good: number;
   needsImprovement: number;
   poor: number;
-  p75: number | null;
+  p75: number | string | null;
 }
 
 export interface UrlMetricData {

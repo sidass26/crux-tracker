@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { GroupListItem } from '@/lib/types';
 
-export default function GroupCard({ group }: { group: GroupListItem }) {
+export default function GroupCard({ group, onRefresh }: { group: GroupListItem; onRefresh?: () => void }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -13,7 +13,7 @@ export default function GroupCard({ group }: { group: GroupListItem }) {
     setLoading(true);
     try {
       await fetch(`/api/groups/${group.id}/fetch`, { method: 'POST' });
-      router.refresh();
+      onRefresh?.();
     } catch (err) {
       console.error('Fetch failed:', err);
     } finally {

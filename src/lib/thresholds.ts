@@ -60,22 +60,26 @@ export const BAND_COLORS = {
   poor: '#ff4e42',
 } as const;
 
-export function getP75Color(value: number | null, metricKey: MetricKey): string {
+export function getP75Color(value: number | string | null, metricKey: MetricKey): string {
   if (value === null) return '#6b7280'; // gray
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num)) return '#6b7280';
   const threshold = METRIC_THRESHOLDS[metricKey];
-  if (value < threshold.good) return BAND_COLORS.good;
-  if (value < threshold.poor) return BAND_COLORS.needsImprovement;
+  if (num < threshold.good) return BAND_COLORS.good;
+  if (num < threshold.poor) return BAND_COLORS.needsImprovement;
   return BAND_COLORS.poor;
 }
 
-export function formatP75(value: number | null, metricKey: MetricKey): string {
+export function formatP75(value: number | string | null, metricKey: MetricKey): string {
   if (value === null) return 'N/A';
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num)) return 'N/A';
   const threshold = METRIC_THRESHOLDS[metricKey];
   if (metricKey === 'cumulative_layout_shift') {
-    return value.toFixed(2);
+    return num.toFixed(2);
   }
   if (threshold.unit === 'ms') {
-    return value >= 1000 ? `${(value / 1000).toFixed(1)}s` : `${Math.round(value)}ms`;
+    return num >= 1000 ? `${(num / 1000).toFixed(1)}s` : `${Math.round(num)}ms`;
   }
-  return String(value);
+  return String(num);
 }

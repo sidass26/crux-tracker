@@ -21,6 +21,7 @@ export default function GroupDetailPage() {
   const [data, setData] = useState<GroupDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
+  const [fetchStatus, setFetchStatus] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -41,15 +42,26 @@ export default function GroupDetailPage() {
 
   async function handleRunNow() {
     setFetching(true);
+    setFetchStatus(null);
     try {
-      await fetch(`/api/groups/${groupId}/fetch`, { method: 'POST' });
-      // Reload data
+      const fetchRes = await fetch(`/api/groups/${groupId}/fetch`, { method: 'POST' });
+      const result = await fetchRes.json();
+      if (!fetchRes.ok) {
+        setFetchStatus(`Error: ${result.error || 'Fetch failed'}`);
+      } else {
+        const parts = [];
+        if (result.fetched > 0) parts.push(`${result.fetched} fetched`);
+        if (result.noData > 0) parts.push(`${result.noData} no data`);
+        if (result.errors > 0) parts.push(`${result.errors} errors`);
+        setFetchStatus(parts.join(', '));
+      }
+      // Reload chart data
       const res = await fetch(`/api/groups/${groupId}?formFactor=${formFactor}`);
       if (res.ok) {
         setData(await res.json());
       }
     } catch (err) {
-      console.error(err);
+      setFetchStatus(`Network error: ${err instanceof Error ? err.message : 'unknown'}`);
     } finally {
       setFetching(false);
     }
@@ -105,6 +117,16 @@ export default function GroupDetailPage() {
           </button>
         </div>
       </div>
+
+      {fetchStatus && (
+        <div className={`mb-4 rounded-lg px-4 py-2.5 text-sm ${
+          fetchStatus.startsWith('Error') || fetchStatus.includes('error')
+            ? 'bg-red-50 text-red-700'
+            : 'bg-green-50 text-green-700'
+        }`}>
+          {fetchStatus}
+        </div>
+      )}
 
       <div className="bg-white rounded-lg border border-gray-200">
         <ComparisonGrid urls={data.urls} />
