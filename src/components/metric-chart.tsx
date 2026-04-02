@@ -16,21 +16,27 @@ interface Props {
   metricKey: MetricKey;
 }
 
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; dataKey: string }>; label?: string }) {
-  if (!active || !payload || payload.length === 0) return null;
-
-  const good = payload.find((p) => p.dataKey === 'good')?.value ?? 0;
-  const ni = payload.find((p) => p.dataKey === 'needsImprovement')?.value ?? 0;
-  const poor = payload.find((p) => p.dataKey === 'poor')?.value ?? 0;
-
+function P75Tooltip({
+  active,
+  payload,
+  label,
+  metricKey,
+}: {
+  active?: boolean;
+  payload?: ReadonlyArray<{ payload: ChartDataPoint }>;
+  label?: string;
+  metricKey: MetricKey;
+}) {
+  if (!active || !payload?.length) return null;
+  const point = payload[0]?.payload;
+  const p75 = point?.p75 ?? null;
+  const color = getP75Color(p75, metricKey);
   return (
-    <div className="rounded-lg bg-white border border-gray-200 shadow-lg p-2.5 text-xs">
-      <p className="font-medium text-gray-700 mb-1">{label}</p>
-      <div className="space-y-0.5">
-        <p><span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: BAND_COLORS.good }} />Good: {(good * 100).toFixed(1)}%</p>
-        <p><span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: BAND_COLORS.needsImprovement }} />Needs improvement: {(ni * 100).toFixed(1)}%</p>
-        <p><span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: BAND_COLORS.poor }} />Poor: {(poor * 100).toFixed(1)}%</p>
-      </div>
+    <div className="rounded-lg bg-white border border-gray-200 shadow-lg px-3 py-2 text-xs">
+      <p className="text-gray-400 mb-1">{label}</p>
+      <p className="font-bold text-sm" style={{ color }}>
+        p75: {formatP75(p75, metricKey)}
+      </p>
     </div>
   );
 }
@@ -55,31 +61,11 @@ export default function MetricChart({ data, metricKey }: Props) {
           <AreaChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <XAxis dataKey="date" hide />
             <YAxis domain={[0, 1]} hide />
-            <Tooltip content={<CustomTooltip />} />
-            <Area
-              type="monotone"
-              dataKey="poor"
-              stackId="1"
-              fill={BAND_COLORS.poor}
-              stroke="none"
-              fillOpacity={0.85}
-            />
-            <Area
-              type="monotone"
-              dataKey="needsImprovement"
-              stackId="1"
-              fill={BAND_COLORS.needsImprovement}
-              stroke="none"
-              fillOpacity={0.85}
-            />
-            <Area
-              type="monotone"
-              dataKey="good"
-              stackId="1"
-              fill={BAND_COLORS.good}
-              stroke="none"
-              fillOpacity={0.85}
-            />
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <Tooltip content={(props: any) => <P75Tooltip {...props} metricKey={metricKey} />} />
+            <Area type="monotone" dataKey="poor" stackId="1" fill={BAND_COLORS.poor} stroke="none" fillOpacity={0.85} />
+            <Area type="monotone" dataKey="needsImprovement" stackId="1" fill={BAND_COLORS.needsImprovement} stroke="none" fillOpacity={0.85} />
+            <Area type="monotone" dataKey="good" stackId="1" fill={BAND_COLORS.good} stroke="none" fillOpacity={0.85} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

@@ -2,8 +2,8 @@
 
 import { createContext, use, useId, useMemo } from "react"
 
-import type { LegendProps } from "recharts"
-import { Legend, ResponsiveContainer, Tooltip } from "recharts"
+import type { TooltipContentProps } from "recharts"
+import { DefaultLegendContent, Legend, ResponsiveContainer, Tooltip } from "recharts"
 import { twMerge } from "tailwind-merge"
 
 const THEMES = { light: "", dark: ".dark" } as const
@@ -112,13 +112,15 @@ const ChartTooltipContent = ({
   nameKey,
   labelKey,
   ref,
-}: React.ComponentProps<typeof Tooltip> &
-  React.ComponentProps<"div"> & {
+}: TooltipContentProps &
+  Omit<React.ComponentProps<"div">, "color"> & {
     hideLabel?: boolean
     hideIndicator?: boolean
     indicator?: "line" | "dot" | "dashed"
     nameKey?: string
     labelKey?: string
+    color?: string
+    labelClassName?: string
   }) => {
   const { config } = useChart()
 
@@ -174,7 +176,7 @@ const ChartTooltipContent = ({
 
           return (
             <div
-              key={item.dataKey}
+              key={typeof item.dataKey === "function" ? index : item.dataKey}
               className={twMerge(
                 "flex w-full flex-wrap items-stretch gap-2 *:data-[slot=icon]:size-2.5 *:data-[slot=icon]:text-gray-400",
                 indicator === "dot" && "items-center",
@@ -242,7 +244,7 @@ const ChartLegendContent = ({
   nameKey,
   ref,
 }: React.ComponentProps<"div"> &
-  Pick<LegendProps, "payload" | "verticalAlign"> & {
+  Pick<React.ComponentProps<typeof DefaultLegendContent>, "payload" | "verticalAlign"> & {
     hideIcon?: boolean
     nameKey?: string
   }) => {

@@ -391,9 +391,9 @@ const AppPreviewHeader: React.FC<AppPreviewHeaderProps> = ({ headerControls }) =
 };
 
 
-type AppDataTableProps = AppDataTableData
+type AppDataTableProps = AppDataTableData & { onRowClick?: (index: number) => void }
 
-const AppDataTable: React.FC<AppDataTableProps> = ({ headers, data }) => {
+const AppDataTable: React.FC<AppDataTableProps> = ({ headers, data, onRowClick }) => {
     // Existing AppDataTable component code
      const renderHeaderIcon = (iconType?: string) => {
         if (iconType === 'document') {
@@ -428,7 +428,7 @@ const AppDataTable: React.FC<AppDataTableProps> = ({ headers, data }) => {
             </div>
 
             {data.map((row, index) => (
-                <div key={row.id || index} className={`grid grid-cols-[1.8fr_1.2fr_0.8fr_1fr_1.2fr] gap-4 text-sm text-gray-700 px-4 py-2 items-center cursor-pointer hover:bg-gray-50 ${index < data.length - 1 ? 'border-b border-gray-200' : ''}`}>
+                <div key={row.id || index} onClick={onRowClick ? () => onRowClick(index) : undefined} className={`grid grid-cols-[1.8fr_1.2fr_0.8fr_1fr_1.2fr] gap-4 text-sm text-gray-700 px-4 py-2 items-center hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''} ${index < data.length - 1 ? 'border-b border-gray-200' : ''}`}>
                     <div className="flex items-center font-medium">
                         {/* Note: Tailwind JIT mode or safelist might be needed for dynamic color classes */}
                         <span className={`inline-block w-2.5 h-2.5 bg-${row.statusColor}-500 rounded-full mr-2`}></span>
@@ -457,9 +457,9 @@ const AppDataTable: React.FC<AppDataTableProps> = ({ headers, data }) => {
 };
 
 
-type AppPreviewSectionProps = AppPreviewData
+type AppPreviewSectionProps = AppPreviewData & { onRowClick?: (index: number) => void }
 
-const AppPreviewSection: React.FC<AppPreviewSectionProps> = ({ headerControls, appDataTable }) => {
+const AppPreviewSection: React.FC<AppPreviewSectionProps> = ({ headerControls, appDataTable, onRowClick }) => {
     // Existing AppPreviewSection component code
     return (
         <div className="relative z-20 px-8 lg:px-12 pb-8 bg-gray-50 rounded-b-xl">
@@ -469,6 +469,7 @@ const AppPreviewSection: React.FC<AppPreviewSectionProps> = ({ headerControls, a
             <AppDataTable
                  headers={appDataTable.headers}
                  data={appDataTable.data}
+                 onRowClick={onRowClick}
             />
         </div>
     );
@@ -478,35 +479,40 @@ const AppPreviewSection: React.FC<AppPreviewSectionProps> = ({ headerControls, a
 // Define the props for the HeroSection component
 interface HeroSectionProps {
     data: HeroSectionComponentData;
+    showNavbar?: boolean;
+    showBackground?: boolean;
+    onRowClick?: (index: number) => void;
 }
 
 // Modify the HeroSection component to accept 'data' as a prop
-export const HeroSection: React.FC<HeroSectionProps> = ({ data }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ data, showNavbar = true, showBackground = true, onRowClick }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Destructure data from the prop
     const { navbar, heroContent, appPreview } = data;
 
     return (
-      <div className="relative min-h-screen bg-blue-50 overflow-hidden font-sans">
+      <div className={`relative font-sans ${showBackground ? 'min-h-screen bg-blue-50 overflow-hidden' : ''}`}>
 
-          <AbstractBackground />
+          {showBackground && <AbstractBackground />}
 
           {/* Pass destructured data to children */}
-          <Navbar {...navbar} onMenuOpen={() => setIsMobileMenuOpen(true)} />
+          {showNavbar && <Navbar {...navbar} onMenuOpen={() => setIsMobileMenuOpen(true)} />}
 
           <div className="relative z-10 max-w-6xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
               <HeroContent {...heroContent} />
-              <AppPreviewSection {...appPreview} />
+              <AppPreviewSection {...appPreview} onRowClick={onRowClick} />
           </div>
 
-          <MobileMenu
-             navLinks={navbar.navLinks}
-             authLinks={navbar.authLinks}
-             logoText={navbar.logoText}
-             isOpen={isMobileMenuOpen}
-             onClose={() => setIsMobileMenuOpen(false)}
-          />
+          {showNavbar && (
+              <MobileMenu
+                 navLinks={navbar.navLinks}
+                 authLinks={navbar.authLinks}
+                 logoText={navbar.logoText}
+                 isOpen={isMobileMenuOpen}
+                 onClose={() => setIsMobileMenuOpen(false)}
+              />
+          )}
 
       </div>
     );

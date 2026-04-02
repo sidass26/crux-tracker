@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FormFactor, KeywordGroup, UrlMetricData } from '@/lib/types';
 import FormFactorToggle from '@/components/form-factor-toggle';
 import ComparisonGrid from '@/components/comparison-grid';
+import { Card } from '@/components/ui/card';
 
 interface GroupDetailResponse {
   group: KeywordGroup;
@@ -93,44 +94,50 @@ export default function GroupDetailPage() {
         &larr; Back to dashboard
       </Link>
 
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{data.group.name}</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {data.urls.length} URL{data.urls.length !== 1 ? 's' : ''} tracked
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <FormFactorToggle value={formFactor} onChange={setFormFactor} />
-          <button
-            onClick={handleRunNow}
-            disabled={fetching}
-            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
-          >
-            {fetching ? 'Fetching...' : 'Run Now'}
-          </button>
-          <button
-            onClick={handleDelete}
-            className="rounded-lg border border-red-200 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
+      <Card className="mb-6">
+        <Card.Header className="flex flex-row items-center justify-between pb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{data.group.name}</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              {data.urls.length} URL{data.urls.length !== 1 ? 's' : ''} tracked
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <FormFactorToggle value={formFactor} onChange={setFormFactor} />
+            <button
+              onClick={handleRunNow}
+              disabled={fetching}
+              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+            >
+              {fetching ? 'Fetching...' : 'Run Now'}
+            </button>
+            <button
+              onClick={handleDelete}
+              className="rounded-lg border border-red-200 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </Card.Header>
+      </Card>
 
       {fetchStatus && (
-        <div className={`mb-4 rounded-lg px-4 py-2.5 text-sm ${
-          fetchStatus.startsWith('Error') || fetchStatus.includes('error')
-            ? 'bg-red-50 text-red-700'
-            : 'bg-green-50 text-green-700'
-        }`}>
+        <div
+          className={`mb-4 rounded-lg px-4 py-2.5 text-sm ${
+            fetchStatus.startsWith('Error') || fetchStatus.includes('error')
+              ? 'bg-red-50 text-red-700'
+              : 'bg-green-50 text-green-700'
+          }`}
+        >
           {fetchStatus}
         </div>
       )}
 
-      <div className="bg-white rounded-lg border border-gray-200">
-        <ComparisonGrid urls={data.urls} />
-      </div>
+      <Card>
+        <Card.Content className="p-0">
+          <ComparisonGrid urls={data.urls} />
+        </Card.Content>
+      </Card>
     </div>
   );
 }
