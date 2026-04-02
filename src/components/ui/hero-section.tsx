@@ -269,7 +269,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navLinks, authLinks, logoText, 
 };
 
 
-interface HeroContentProps extends HeroContentData {}
+type HeroContentProps = HeroContentData
 
 const HeroContent: React.FC<HeroContentProps> = ({
     subheadline = '',
@@ -309,7 +309,7 @@ const HeroContent: React.FC<HeroContentProps> = ({
     );
 };
 
-interface AppPreviewHeaderControlsProps extends AppPreviewHeaderControlsData {}
+type AppPreviewHeaderControlsProps = AppPreviewHeaderControlsData
 
 const AppPreviewHeaderControls: React.FC<AppPreviewHeaderControlsProps> = ({ filters, actions }) => {
      // Existing AppPreviewHeaderControls component code
@@ -391,7 +391,7 @@ const AppPreviewHeader: React.FC<AppPreviewHeaderProps> = ({ headerControls }) =
 };
 
 
-interface AppDataTableProps extends AppDataTableData {}
+type AppDataTableProps = AppDataTableData
 
 const AppDataTable: React.FC<AppDataTableProps> = ({ headers, data }) => {
     // Existing AppDataTable component code
@@ -457,7 +457,7 @@ const AppDataTable: React.FC<AppDataTableProps> = ({ headers, data }) => {
 };
 
 
-interface AppPreviewSectionProps extends AppPreviewData {}
+type AppPreviewSectionProps = AppPreviewData
 
 const AppPreviewSection: React.FC<AppPreviewSectionProps> = ({ headerControls, appDataTable }) => {
     // Existing AppPreviewSection component code
