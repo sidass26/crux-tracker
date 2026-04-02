@@ -1,7 +1,7 @@
 import React from "react"
 import { twMerge } from "tailwind-merge"
 
-interface CardProps extends React.ComponentProps<"div"> {}
+type CardProps = React.ComponentProps<"div">
 
 const CardRoot = ({ className, children, ...props }: CardProps) => (
   <div
