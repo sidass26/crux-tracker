@@ -96,3 +96,85 @@ export interface FetchResult {
 }
 
 export type FormFactor = 'PHONE' | 'DESKTOP';
+
+// ── Comparison feature ────────────────────────────────────────────────────────
+
+export interface PageType {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+}
+
+export interface PageTypeBrand {
+  id: string;
+  page_type_id: string;
+  brand_name: string;
+  color: string | null;
+  created_at: string;
+}
+
+export interface PageTypeUrl {
+  id: string;
+  page_type_brand_id: string;
+  url: string;
+  created_at: string;
+}
+
+export interface ComparisonSnapshot {
+  id: string;
+  page_type_url_id: string;
+  form_factor: FormFactor;
+  fetched_at: string;
+  raw_json: CruxApiResponse | CruxErrorResponse;
+}
+
+// One weekly data point for an aggregate brand line
+export interface AggregateDataPoint {
+  date: string;
+  p75Avg: number | null;
+  urlCount: number;    // URLs that contributed a non-null p75 this week
+  totalUrls: number;   // Total URLs in the brand group
+}
+
+export interface BrandAggregateData {
+  brandId: string;
+  brandName: string;
+  brandColor: string;
+  urlCount: number;
+  metrics: Record<MetricKey, AggregateDataPoint[]>;
+}
+
+export interface ComparisonDetailResponse {
+  pageType: PageType;
+  brands: BrandAggregateData[];
+  collectionDates: string[];
+}
+
+// List item for /comparisons page
+export interface PageTypeListItem extends PageType {
+  brand_count: number;
+  url_count: number;
+  last_fetched_at: string | null;
+}
+
+// Fetch job progress (in-memory, returned by polling endpoint)
+export interface FetchJobStatus {
+  jobId: string;
+  status: 'running' | 'complete' | 'error';
+  completed: number;
+  total: number;
+  fetched: number;
+  noData: number;
+  errors: number;
+}
+
+// Drill-down: per-URL data for a brand
+export interface DrilldownUrl {
+  id: string;
+  url: string;
+  latestP75: number | null;
+  status: 'good' | 'needs-improvement' | 'poor' | 'no-data';
+  weeklyP75: (number | null)[];
+  collectionDates: string[];
+}

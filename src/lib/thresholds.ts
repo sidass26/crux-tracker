@@ -70,6 +70,44 @@ export function getP75Color(value: number | string | null, metricKey: MetricKey)
   return BAND_COLORS.poor;
 }
 
+export const METRIC_CATEGORIES: {
+  label: string;
+  description: string;
+  metrics: MetricKey[];
+}[] = [
+  {
+    label: 'Loading Performance',
+    description: 'How fast the page loads and first content appears — directly impacts bounce rates.',
+    metrics: [
+      'experimental_time_to_first_byte',
+      'first_contentful_paint',
+      'largest_contentful_paint',
+    ],
+  },
+  {
+    label: 'Visual Stability',
+    description: 'How much the page layout shifts unexpectedly — affects user trust and ad clicks.',
+    metrics: ['cumulative_layout_shift'],
+  },
+  {
+    label: 'Interactivity',
+    description: 'How quickly the page responds to user inputs like taps and clicks.',
+    metrics: ['interaction_to_next_paint'],
+  },
+];
+
+// 8 distinct brand colors (assigned in order when brands are created)
+export const BRAND_COLORS = [
+  '#3b82f6', // blue
+  '#ef4444', // red
+  '#10b981', // emerald
+  '#f59e0b', // amber
+  '#8b5cf6', // violet
+  '#ec4899', // pink
+  '#06b6d4', // cyan
+  '#84cc16', // lime
+];
+
 export function formatP75(value: number | string | null, metricKey: MetricKey): string {
   if (value === null) return 'N/A';
   const num = typeof value === 'string' ? parseFloat(value) : value;
