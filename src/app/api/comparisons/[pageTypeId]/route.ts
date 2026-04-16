@@ -4,6 +4,8 @@ import { transformCruxResponse, isCruxError } from '@/lib/crux';
 import { METRIC_ORDER } from '@/lib/thresholds';
 import { MetricKey, AggregateDataPoint, BrandAggregateData, CruxApiResponse } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 type Params = { params: { pageTypeId: string } };
 
 // GET /api/comparisons/[pageTypeId]?formFactor=PHONE|DESKTOP

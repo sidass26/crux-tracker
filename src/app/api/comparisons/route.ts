@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { BRAND_COLORS } from '@/lib/thresholds';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/comparisons — list all page types with counts
 export async function GET() {
   const supabase = createServerClient();
