@@ -77,8 +77,9 @@ export default function PageTypeForm({
       }
 
       const data = await res.json();
+      // Go straight to the detail page so you can run the fetch immediately
       router.push(`/comparisons/${pageTypeId ?? data.id}`);
-      router.refresh();
+      router.refresh(); // invalidates router cache so list shows the new item on next visit
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save');
     } finally {

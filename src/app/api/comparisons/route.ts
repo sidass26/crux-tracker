@@ -84,7 +84,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (ptError || !pageType) {
-    return NextResponse.json({ error: 'Failed to create page type' }, { status: 500 });
+    console.error('Failed to insert page_type:', ptError);
+    return NextResponse.json({ error: ptError?.message ?? 'Failed to create page type' }, { status: 500 });
   }
 
   // Insert brands and their URLs

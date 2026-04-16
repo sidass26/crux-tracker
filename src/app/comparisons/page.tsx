@@ -8,12 +8,28 @@ import { PageTypeListItem } from '@/lib/types';
 export default function ComparisonsPage() {
   const [pageTypes, setPageTypes] = useState<PageTypeListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/comparisons');
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `API error ${res.status}`);
+      }
+      const data = await res.json();
+      setPageTypes(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load comparisons');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    fetch('/api/comparisons')
-      .then((res) => res.json())
-      .then(setPageTypes)
-      .finally(() => setLoading(false));
+    load();
   }, []);
 
   return (
@@ -41,6 +57,13 @@ export default function ComparisonsPage() {
               <div className="h-3 bg-gray-100 rounded w-3/4" />
             </div>
           ))}
+        </div>
+      ) : error ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+          <p className="text-sm font-medium text-red-700">{error}</p>
+          <button onClick={load} className="mt-2 text-sm text-red-600 hover:underline">
+            Retry
+          </button>
         </div>
       ) : pageTypes.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed border-gray-200 py-16 text-center">
