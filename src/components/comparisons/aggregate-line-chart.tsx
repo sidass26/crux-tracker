@@ -98,15 +98,18 @@ export default function AggregateLineChart({
     return row;
   });
 
-  // Y-axis: auto domain with 10% padding
+  // Y-axis: nice domain that works for both ms values and small decimals (CLS)
   const allValues = brands.flatMap((b) =>
     (b.metrics[metricKey] ?? []).map((p) => p.p75Avg).filter((v): v is number => v !== null)
   );
   const minVal = allValues.length > 0 ? Math.min(...allValues) : 0;
   const maxVal = allValues.length > 0 ? Math.max(...allValues) : threshold.poor * 1.5;
-  const yPad = (maxVal - minVal) * 0.12 || maxVal * 0.1;
-  const yMin = Math.max(0, Math.floor(minVal - yPad));
-  const yMax = Math.ceil(maxVal + yPad);
+  const range = maxVal - minVal || maxVal;
+  const yPad = range * 0.15;
+  // Use decimal-aware rounding so CLS values (0.0x–0.3) aren't crushed by integer ceil/floor
+  const magnitude = Math.pow(10, Math.floor(Math.log10(maxVal || 1)));
+  const yMin = Math.max(0, Math.floor((minVal - yPad) / magnitude) * magnitude);
+  const yMax = Math.ceil((maxVal + yPad) / magnitude) * magnitude;
 
   // Tick formatter
   function formatTick(v: number) {

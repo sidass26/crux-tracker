@@ -6,7 +6,6 @@ import { ComparisonDetailResponse, FormFactor, MetricKey } from '@/lib/types';
 import { METRIC_CATEGORIES } from '@/lib/thresholds';
 import ComparisonHeader from '@/components/comparisons/comparison-header';
 import MetricCategorySection from '@/components/comparisons/metric-category-section';
-import FetchProgressBar from '@/components/comparisons/fetch-progress-bar';
 import BrandDrilldownModal from '@/components/comparisons/brand-drilldown-modal';
 
 export default function ComparisonDetailPage() {
@@ -15,7 +14,6 @@ export default function ComparisonDetailPage() {
   const [data, setData] = useState<ComparisonDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [formFactor, setFormFactor] = useState<FormFactor>('PHONE');
-  const [activeJob, setActiveJob] = useState<{ jobId: string; total: number } | null>(null);
   const [drilldown, setDrilldown] = useState<{
     brandId: string;
     brandName: string;
@@ -37,12 +35,7 @@ export default function ComparisonDetailPage() {
     loadData(ff);
   }
 
-  function handleFetchStart(jobId: string, total: number) {
-    setActiveJob({ jobId, total });
-  }
-
   const handleFetchComplete = useCallback(() => {
-    setActiveJob(null);
     loadData(formFactor);
   }, [formFactor, loadData]);
 
@@ -60,26 +53,14 @@ export default function ComparisonDetailPage() {
     );
   }
 
-  // Find last fetched date across all brands
-  const lastFetchedAt: string | null = null;
-
   return (
     <>
       <ComparisonHeader
         pageType={data.pageType}
         formFactor={formFactor}
         onFormFactorChange={handleFormFactorChange}
-        onFetchStart={handleFetchStart}
-        lastFetchedAt={lastFetchedAt}
+        onFetchComplete={handleFetchComplete}
       />
-
-      {activeJob && (
-        <FetchProgressBar
-          pageTypeId={pageTypeId}
-          jobId={activeJob.jobId}
-          onComplete={handleFetchComplete}
-        />
-      )}
 
       {data.brands.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed border-gray-200 py-16 text-center">

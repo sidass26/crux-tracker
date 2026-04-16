@@ -10,29 +10,28 @@ interface ComparisonHeaderProps {
   pageType: PageType;
   formFactor: FormFactor;
   onFormFactorChange: (ff: FormFactor) => void;
-  onFetchStart: (jobId: string, total: number) => void;
-  lastFetchedAt?: string | null;
+  onFetchComplete: () => void;
 }
 
 export default function ComparisonHeader({
   pageType,
   formFactor,
   onFormFactorChange,
-  onFetchStart,
-  lastFetchedAt,
+  onFetchComplete,
 }: ComparisonHeaderProps) {
   const router = useRouter();
   const [fetching, setFetching] = useState(false);
+  const [fetchResult, setFetchResult] = useState<{ fetched: number; noData: number; skipped: number } | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   async function handleRunNow() {
     setFetching(true);
+    setFetchResult(null);
     try {
       const res = await fetch(`/api/comparisons/${pageType.id}/fetch`, { method: 'POST' });
       const data = await res.json();
-      if (res.ok && data.jobId) {
-        onFetchStart(data.jobId, data.total);
-      }
+      setFetchResult({ fetched: data.fetched ?? 0, noData: data.noData ?? 0, skipped: data.skipped ?? 0 });
+      onFetchComplete();
     } finally {
       setFetching(false);
     }
@@ -45,10 +44,6 @@ export default function ComparisonHeader({
     router.push('/comparisons');
     router.refresh();
   }
-
-  const lastFetched = lastFetchedAt
-    ? new Date(lastFetchedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    : null;
 
   return (
     <div className="mb-6">
@@ -64,9 +59,6 @@ export default function ComparisonHeader({
           {pageType.description && (
             <p className="text-sm text-gray-500">{pageType.description}</p>
           )}
-          {lastFetched && (
-            <p className="text-xs text-gray-400 mt-1">Last fetched {lastFetched}</p>
-          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -79,20 +71,32 @@ export default function ComparisonHeader({
           </Link>
           <button
             onClick={handleRunNow}
-            disabled={fetching}
-            className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            disabled={fetching || deleting}
+            className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors min-w-[80px]"
           >
-            {fetching ? 'Starting…' : 'Run Now'}
+            {fetching ? 'Fetching…' : 'Run Now'}
           </button>
           <button
             onClick={handleDelete}
-            disabled={deleting}
+            disabled={deleting || fetching}
             className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
           >
             Delete
           </button>
         </div>
       </div>
+
+      {/* Fetch status banner */}
+      {fetching && (
+        <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+          Fetching CrUX data for all URLs — this may take a minute or two. Please wait…
+        </div>
+      )}
+      {fetchResult && !fetching && (
+        <div className="mt-3 rounded-lg border border-green-100 bg-green-50 px-4 py-3 text-sm text-green-700">
+          Done — {fetchResult.fetched} fetched, {fetchResult.noData} no data, {fetchResult.skipped} skipped (fresh)
+        </div>
+      )}
     </div>
   );
 }
